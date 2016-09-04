@@ -8,7 +8,7 @@ use App\Transformers\LessonTransformer;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
-class LessonsController extends Controller
+class LessonsController extends APIController
 {
 
     protected $lessonTransformer;
@@ -26,7 +26,9 @@ class LessonsController extends Controller
     public function index()
     {
         $lessons = Lesson::all();
-        return $this->lessonTransformer->transformCollection($lessons->toArray());
+        return $this->respond([
+            'data' => $this->lessonTransformer->transformCollection($lessons->toArray())
+        ]);
     }
 
     /**
@@ -38,7 +40,14 @@ class LessonsController extends Controller
     public function show($id)
     {
         $lesson = Lesson::find($id);
-        return $this->lessonTransformer->transform($lesson);
+
+        if (!$lesson) {
+            return $this->responseWithError('Lesson not found.');
+        }
+        
+        return $this->respond([
+            'data' => $this->lessonTransformer->transform($lesson)
+        ]);
     }
 
     /**
